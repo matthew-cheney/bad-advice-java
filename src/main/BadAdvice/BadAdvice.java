@@ -1,5 +1,7 @@
 package main.BadAdvice;
 
+import edu.stanford.nlp.tagger.maxent.MaxentTagger;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -21,7 +23,9 @@ public class BadAdvice {
                 break;
             }
 
-            ArrayList<Word> tagged = tagger.tag(sent);
+            MaxentTagger tagger_m = new MaxentTagger("/home/matthew/IdeaProjects/BadAdvice/english-bidirectional-distsim.tagger");
+
+            ArrayList<Word> tagged = tagger.tag(sent, tagger_m);
 
             Parser parser = new Parser();
 
@@ -38,6 +42,28 @@ public class BadAdvice {
             String advice = adviser.getAdvice(question);
             System.out.println(advice);
         }
+    }
+
+    public String getAdvice(String sent, MaxentTagger m_tagger) {
+
+        Tagger tagger = new Tagger();
+
+        ArrayList<Word> tagged = tagger.tag(sent, m_tagger);
+
+        Parser parser = new Parser();
+
+        Question question = null;
+
+        try {
+            question = parser.parse(tagged);
+        } catch (InvalidQuestionError e) {
+            System.out.println(e.getMessage());
+            return "I am sorry. I do not understand your question.";
+        }
+
+        Adviser adviser = new Adviser();
+        String advice = adviser.getAdvice(question);
+        return advice;
     }
 
 }
